@@ -61,6 +61,7 @@ class Php <Formula
       "--enable-bcmath",
       "--enable-calendar",
       "--enable-memcache",
+      "--enable-intl",
       "--with-openssl=/usr",
       "--with-zlib=/usr",
       "--with-bz2=/usr",
@@ -80,6 +81,7 @@ class Php <Formula
       "--with-gettext=#{Formula.factory('gettext').prefix}",
       "--with-tidy",
       "--with-readline=#{Formula.factory('readline').prefix}",
+      # "--with-icu-dir=#{Formula.factory('icu4c').prefix}",
       "--mandir=#{man}"
     ]
 
@@ -119,8 +121,20 @@ class Php <Formula
   end
   
   def install
+    
     ENV.O3 # Speed things up
+    
+    # See http://github.com/mxcl/homebrew/issues/#issue/69
+    ENV.universal_binary
+    # unless Hardware.is_64_bit?
+    
+    system "export EXTRA_LIBS='-lstdc++'"
+    
     system "./configure", *configure_args
+    
+    inreplace "Makefile",
+      "EXTRA_LIBS =",
+      "EXTRA_LIBS = -lstdc++"
 
     if ARGV.include? '--with-apache'
       # Use Homebrew prefix for the Apache libexec folder
