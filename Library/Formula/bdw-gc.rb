@@ -1,15 +1,17 @@
 require 'formula'
 
 class BdwGc < Formula
-  url 'http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/gc-7.2alpha6.tar.gz'
-  version '7.2alpha6'
+  url 'http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/gc-7.1.tar.gz'
   homepage 'http://www.hpl.hp.com/personal/Hans_Boehm/gc/'
-  head 'cvs://:pserver:anonymous@bdwgc.cvs.sourceforge.net:/cvsroot/bdwgc:bdwgc', :using => :cvs
-  md5 '319d0b18cc4eb735c8038ece9df055e4'
+  md5 '2ff9924c7249ef7f736ecfe6f08f3f9b'
 
-  fails_with_llvm "LLVM gives an unsupported inline asm error" unless ARGV.build_head?
+  fails_with_llvm "LLVM gives an unsupported inline asm error", :build => 2335
 
   def install
+    # ucontext has been deprecated in 10.6
+    # use this flag to force the header to compile
+    ENV.append 'CPPFLAGS', "-D_XOPEN_SOURCE" if MacOS.snow_leopard?
+
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make install"
